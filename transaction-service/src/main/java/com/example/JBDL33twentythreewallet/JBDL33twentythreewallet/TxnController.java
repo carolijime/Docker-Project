@@ -1,5 +1,6 @@
 package com.example.JBDL33twentythreewallet.JBDL33twentythreewallet;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -23,11 +24,13 @@ public class TxnController {
      */
 
     @PostMapping("/txn")
-    public String initiateTxn(@RequestParam("receiver") String receiver, @RequestParam("purpose") String purpose){
+    public String initiateTxn(@RequestParam("receiver") String receiver,
+                              @RequestParam("purpose") String purpose,
+                              @RequestParam("amount") Double amount) throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); //get user info from context
         UserDetails user = (UserDetails) authentication.getPrincipal();
 
-        return txnService.initiateTxn(user.getUsername(), receiver, purpose);
+        return txnService.initiateTxn(user.getUsername(), receiver, purpose, amount);
 
     }
 }

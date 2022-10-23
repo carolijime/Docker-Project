@@ -4,6 +4,7 @@ import com.example.JBDL33twentythreewallet.JBDL33twentythreewallet.CommonConstan
 import com.example.JBDL33twentythreewallet.JBDL33twentythreewallet.UserIdentifier;
 import com.example.JBDL33twentythreewallet.JBDL33twentythreewallet.Wallet;
 import com.example.JBDL33twentythreewallet.JBDL33twentythreewallet.WalletRepository;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WalletService {
 
-//    private static Logger logger  = LoggerFactory.getLogger(WalletService.class);
+    private static Logger logger  = LoggerFactory.getLogger(WalletService.class);
 
     @Autowired
     WalletRepository walletRepository;
@@ -51,10 +52,43 @@ public class WalletService {
 
     }
 
-//    @KafkaListener(topics = CommonConstants.USER_CREATION_TOPIC, groupId = "grp123")
-//    public void listenGroupFoo(String message) {
-//        logger.info("inside wallet service listenGroupFoo");
-//        System.out.println("Received Message in group grp123: " + message);
-//    }
+    @KafkaListener(topics = CommonConstants.TRANSACTION_CREATION_TOPIC, groupId = "grp123" )
+    public void updateWalletForTxn(String msg) throws ParseException, JsonProcessingException {
+
+        JSONObject data = (JSONObject) new JSONParser().parse(msg);
+
+        String sender = (String)data.get("sender");
+        String receiver = (String)data.get("receiver");
+        Double amount = (Double) data.get("amount");
+        String txnId = (String) data.get("txnId");
+
+        logger.info("Updating wallets: sender - {}, receiver - {}, amount - {}, txnId - {}", sender, receiver, amount, txnId);
+
+        Wallet senderWallet = walletRepository.findByPhoneNumber(sender);
+        Wallet receiverWallet = walletRepository.findByPhoneNumber(receiver);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("txnId", txnId);
+        jsonObject.put("sender", sender);
+        jsonObject.put("receiver", receiver);
+        jsonObject.put("amount", amount);
+
+
+        //check if sender's wallet has enough money (balance) to make the transaction
+        if(senderWallet == null || receiverWallet == null || senderWallet.getBalance() < amount){
+            jsonObject.put("walletUpdateStatus", WalletUpdateStatus.FAILED);
+            kafkaTemplate.send(CommonConstants.WALLET_UPDATED_TOPIC, objectMapper.writeValueAsString(jsonObject));
+            return;
+        }
+
+        //update the wallets
+        walletRepository.updateWallet(receiver, amount); // +10
+        walletRepository.updateWallet(sender, 0 - amount); // -10
+
+        // TODO: Kafka for wallet update
+        jsonObject.put("walletUpdateStatus", WalletUpdateStatus.SUCCESS);
+        kafkaTemplate.send(CommonConstants.WALLET_UPDATED_TOPIC, objectMapper.writeValueAsString(jsonObject));
+
+    }
 
 }

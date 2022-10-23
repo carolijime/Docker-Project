@@ -24,7 +24,7 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .httpBasic()
+                .httpBasic()// if not added, it will not return a JSON, only return HTML response
                 .and()
                 .csrf().disable() //needs to be disabled in order for the non secure post request to work
                 .authorizeHttpRequests()
