@@ -30,7 +30,7 @@ public class WalletConfig {
 
     Properties getCProperties(){
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.17.175.211:9092");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 //        logger.info("Inside wallet getCProperties");
@@ -39,7 +39,7 @@ public class WalletConfig {
 
     Properties getPProperties(){
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.17.175.211:9092");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 //        logger.info("Inside wallet getPProperties");
@@ -71,38 +71,5 @@ public class WalletConfig {
         return listener;
     }
 
-    ////////////////////////////example code below//////////////////////////////
-
-//    private static Logger logger = LoggerFactory.getLogger(WalletConfig.class);
-//
-//    @Bean
-//    public ConsumerFactory<String, String> consumerFactory() {
-//        Map<String, Object> props = new HashMap<>();
-//        props.put(
-//                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-//                "172.17.175.211:9092");
-//        props.put(
-//                ConsumerConfig.GROUP_ID_CONFIG,
-//                "grp123");
-//        props.put(
-//                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-//                StringDeserializer.class);
-//        props.put(
-//                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-//                StringDeserializer.class);
-//        logger.info("Inside wallet ConsumerFactory");
-//        return new DefaultKafkaConsumerFactory<>(props);
-//    }
-//
-//    @Bean
-//    public ConcurrentKafkaListenerContainerFactory<String, String>
-//    kafkaListenerContainerFactory() {
-//
-//        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-//                new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory());
-//        logger.info("Inside wallet ConcurrentKafkaListenerContainerFactory");
-//        return factory;
-//    }
 
 }
